@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptography Toolkit</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Cryptography & Number Theory Toolkit</h1>
+
+    <h3>Prime Factorization</h3>
+    <input type="number" id="prime_factor_n">
+    <button onclick="compute('prime_factor')">Compute</button>
+    <p id="prime_factor_result"></p>
+
+    <h3>Euler Totient Function</h3>
+    <input type="number" id="totient_n">
+    <button onclick="compute('totient')">Compute</button>
+    <p id="totient_result"></p>
+
+    <h3>Miller-Rabin Primality Test</h3>
+    <input type="number" id="miller_n"> Iterations:
+    <input type="number" id="miller_k" value="5">
+    <button onclick="compute('miller_rabin')">Compute</button>
+    <p id="miller_rabin_result"></p>
+
+    <h3>Fast Exponentiation</h3>
+    Base: <input type="number" id="fast_exp_base">
+    Exponent: <input type="number" id="fast_exp_exponent">
+    Modulus (optional): <input type="number" id="fast_exp_modulus">
+    <button onclick="compute('fast_exp')">Compute</button>
+    <p id="fast_exp_result"></p>
+
+    <h3>History</h3>
+    <ul>
+        {% for entry in history %}
+            <li>{{ entry }}</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function compute(operation) {
+            let data = {};
+            if (operation === "prime_factor") {
+                data["n"] = $("#prime_factor_n").val();
+            } else if (operation === "totient") {
+                data["n"] = $("#totient_n").val();
+            } else if (operation === "miller_rabin") {
+                data["n"] = $("#miller_n").val();
+                data["k"] = $("#miller_k").val();
+            } else if (operation === "fast_exp") {
+                data["base"] = $("#fast_exp_base").val();
+                data["exponent"] = $("#fast_exp_exponent").val();
+                data["modulus"] = $("#fast_exp_modulus").val();
+            }
+
+            $.ajax({
+                url: "/compute",
+                type: "POST",
+                contentType: "application/json",  // ✅ Fixes 415 error
+                data: JSON.stringify({ operation, ...data }),  // ✅ Ensure JSON payload
+                success: function(response) {
+                    $("#" + operation + "_result").text(response.result || response.error);
+                },
+                error: function(xhr, status, error) {
+                    $("#" + operation + "_result").text("Error: " + xhr.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
